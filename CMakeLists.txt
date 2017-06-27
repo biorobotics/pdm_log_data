@@ -136,6 +136,9 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/pdm_log_data_node.cpp)
 add_executable(talker src/talker.cpp)
 add_executable(listener src/listener.cpp)
+add_executable(pose_talker src/pose_talker.cpp)
+add_executable(log_pose src/log_pose.cpp)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,6 +156,8 @@ add_executable(listener src/listener.cpp)
 # )
 target_link_libraries(talker ${catkin_LIBRARIES})
 target_link_libraries(listener ${catkin_LIBRARIES})
+target_link_libraries(pose_talker ${catkin_LIBRARIES})
+target_link_libraries(log_pose ${catkin_LIBRARIES})
 
 #############
 ## Install ##
