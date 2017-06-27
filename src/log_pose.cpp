@@ -5,20 +5,10 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-using namespace std; 
 
+#include <pdm_log_data/log_pose.h>
 
-/// Class
-class log_mypose{
-public: 
-	geometry_msgs::PoseWithCovarianceStamped mypose_;
-	ofstream* ofile_; 
-
-	void poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
-
-	log_mypose(ofstream* file_ptr);
-	~log_mypose();
-};
+using namespace std;
 
 /// Constructor
 log_mypose::log_mypose(ofstream* file_ptr)
@@ -61,6 +51,11 @@ void log_mypose::poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::C
 	else // TODO: implement proper error management!
 		cout << "ofile_ is not open." << endl; 
 }
+
+// ------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------
+
 
 int main(int argc, char **argv)
 {
