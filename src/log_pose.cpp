@@ -11,8 +11,9 @@
 using namespace std;
 
 /// Constructor
-log_mypose::log_mypose(ofstream* file_ptr)
+log_mypose::log_mypose(ofstream* file_ptr, int id)
 {
+	id_ = id; 
 	ofile_ = file_ptr;
 	if(ofile_->is_open())
 	{
@@ -59,27 +60,40 @@ void log_mypose::poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::C
 
 int main(int argc, char **argv)
 {
+	string log_file1("/home/pea/Desktop/Log_results/log1.csv"); // Specify the full path and the name of your log file!
+	string log_file2("/home/pea/Desktop/Log_results/log2.csv"); 
+	string chatter_name1("pose_chatter1"); // Specify the name of the node you want to save the pose from!
+	string chatter_name2("pose_chatter2");
 
-	// Specify the full path and the name of your log file!
-	string log_file("/home/pea/Desktop/Log_results/log1.csv");
+	ofstream myfile1; 
+	ofstream myfile2; 
+	//myfile1.open(log_file1.c_str(), ofstream::out | ofstream::app);
+	//myfile2.open(log_file2.c_str(), ofstream::out | ofstream::app);
+	myfile1.open(log_file1.c_str());
+	myfile2.open(log_file2.c_str());
+	
+	myfile1 << " , Opened log_file:," << log_file1 << endl;
+	myfile2 << " , Opened log_file:," << log_file2 << endl;
 
-	ofstream myfile; 
-	myfile.open(log_file.c_str(), ofstream::out | ofstream::app);
-	//myfile.open(log_file.c_str()); // if you don't want the new data to be appended to an existing file but overwriting it.
-	myfile << " , Opened log_file:," << log_file << endl;
-
-	log_mypose log_object(&myfile); 
+	log_mypose log_object1(&myfile1, 1);
+	log_mypose log_object2(&myfile2, 2); 
 
 	ros::init(argc, argv, "listener");
-	ros::NodeHandle n; 
-	ros::Subscriber sub = n.subscribe("pose_chatter", 1000, &log_mypose::poseChatterCb, &log_object);
-
+	ros::NodeHandle n1;
+	ros::NodeHandle n2; 
+	ros::Subscriber sub1 = n1.subscribe(chatter_name1, 1000, &log_mypose::poseChatterCb, &log_object1);
+	ros::Subscriber sub2 = n2.subscribe(chatter_name2, 1000, &log_mypose::poseChatterCb, &log_object2);
+	
 	while(ros::ok())
 	{
 		ros::spinOnce();
 	}
 
-	myfile<<endl; 
-	myfile.close(); // TODO: when the pose_chatter node is shut down, the file should close too. Otherwise there is overwriting. 
+
+	myfile1<<endl;
+	myfile2<<endl; 
+
+	myfile1.close(); // Never forget to close file!
+	myfile2.close();
 	return 0; 
 }

@@ -12,19 +12,21 @@
 using namespace std;
 
 /// Class
-class log_mypose{
+class log_mypose {
 public: 
 	// Members
 	geometry_msgs::PoseWithCovarianceStamped mypose_;
 	ofstream* ofile_; 
+	int id_; 
 
 	// Member Function
 	void poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
 
 	// Constructor & Destructor
-	log_mypose(ofstream* file_ptr);
+	log_mypose(ofstream* file_ptr, int id);
 	~log_mypose();
 };
+
 
 
 #endif // LOG_POSE_H_
