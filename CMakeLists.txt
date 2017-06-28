@@ -121,9 +121,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pdm_log_data.cpp
-# )
+add_library(myloglibrary    ## do not forget to name your library!!!
+   src/log_pose.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -134,10 +134,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/pdm_log_data_node.cpp)
-add_executable(talker src/talker.cpp)
-add_executable(listener src/listener.cpp)
 add_executable(pose_talker src/pose_talker.cpp)
-add_executable(log_pose src/log_pose.cpp)
+add_executable(logger src/logger.cpp)
 
 
 ## Rename C++ executable without prefix
@@ -154,10 +152,8 @@ add_executable(log_pose src/log_pose.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(talker ${catkin_LIBRARIES})
-target_link_libraries(listener ${catkin_LIBRARIES})
 target_link_libraries(pose_talker ${catkin_LIBRARIES})
-target_link_libraries(log_pose ${catkin_LIBRARIES})
+target_link_libraries(logger ${catkin_LIBRARIES} myloglibrary) ## add the library name you created!!!
 
 #############
 ## Install ##

@@ -7,6 +7,8 @@
 #include <cmath>
 #include <random>
 
+using namespace std; 
+
 
 const double PI = 3.1415926535897;
 
@@ -43,7 +45,10 @@ int main(int argc, char **argv)
 
 		time_now = ros::Time::now(); 
 		if (count == 0)
+		{
 			time_previous = time_now; 
+			cout << "[INFO:] Pose talker talking" << endl; 
+		}
 
 		geometry_msgs::PoseWithCovarianceStamped pose_msg;  
 		pose_msg.header.seq = count; 
@@ -74,6 +79,7 @@ int main(int argc, char **argv)
 		++count; 
 
 	}
+	cout << "[INFO:] Pose talker not talking anymore" << endl; 
 
 	return 0; 
 }

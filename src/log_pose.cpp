@@ -1,39 +1,43 @@
-#include <ros/ros.h>
-#include <std_msgs/String.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-
-#include <sstream>
-#include <iostream>
-#include <fstream>
-
 #include <pdm_log_data/log_pose.h>
 
 using namespace std;
 
 /// Constructor
-log_mypose::log_mypose(ofstream* file_ptr, int id)
+LogPose::LogPose(ofstream* file_ptr, int id)
 {
+	// TODO: Control that inputs are given, default constructor?
 	id_ = id; 
 	ofile_ = file_ptr;
+
+	// TODO: implement proper error management!
 	if(ofile_->is_open())
 	{
-		cout << "INFO: Ready to write to the specified file." << endl;
-		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz" << endl; 
+		cout << "[INFO:] File ready (id " << id_ << ")" << endl;
+
+		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz,";
+		(*ofile_)<< "Cov11, Cov12, Cov13, Cov14, Cov15, Cov16,";
+		(*ofile_)<< "Cov21, Cov22, Cov23, Cov24, Cov25, Cov26,";
+		(*ofile_)<< "Cov31, Cov32, Cov33, Cov34, Cov35, Cov36,";
+		(*ofile_)<< "Cov41, Cov42, Cov43, Cov44, Cov45, Cov46,";
+		(*ofile_)<< "Cov51, Cov52, Cov53, Cov54, Cov55, Cov56,";
+		(*ofile_)<< "Cov61, Cov62, Cov63, Cov64, Cov65, Cov66,";
+		(*ofile_)<< endl;		 
 	}
-	else // TODO: proper error function!
-		cout << "ofile_ is not open!" << endl; 
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Description not created." << endl; 
 }
 
 /// Destructor 
-log_mypose::~log_mypose(void)
+LogPose::~LogPose(void)
 {
-	cout << "Destructor Invoked (log_mypose)" << endl;
+	cout << "[INFO:] Closing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
 }
 
 /// Member Function(s)
-void log_mypose::poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void LogPose::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
-	mypose_ = *msg;
+	// TODO: implement proper error management!
 	if (ofile_->is_open())
 	{
 		(*ofile_)<<msg->header.seq 				<< ",";
@@ -45,55 +49,13 @@ void log_mypose::poseChatterCb(const geometry_msgs::PoseWithCovarianceStamped::C
 		(*ofile_)<<msg->pose.pose.orientation.w << ",";
 		(*ofile_)<<msg->pose.pose.orientation.x << ",";
 		(*ofile_)<<msg->pose.pose.orientation.y << ",";
-		(*ofile_)<<msg->pose.pose.orientation.z << "\n";
-
-		// TODO: Also log the covariance matrix
+		(*ofile_)<<msg->pose.pose.orientation.z << ",";
+		for(int i = 0; i < 36; i++)
+		{
+			(*ofile_)<<msg->pose.covariance[i] << ",";	
+		}
+		(*ofile_)<< "\n";
 	}
-	else // TODO: implement proper error management!
-		cout << "ofile_ is not open." << endl; 
-}
-
-// ------------------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------------
-
-
-int main(int argc, char **argv)
-{
-	string log_file1("/home/pea/Desktop/Log_results/log1.csv"); // Specify the full path and the name of your log file!
-	string log_file2("/home/pea/Desktop/Log_results/log2.csv"); 
-	string chatter_name1("pose_chatter1"); // Specify the name of the node you want to save the pose from!
-	string chatter_name2("pose_chatter2");
-
-	ofstream myfile1; 
-	ofstream myfile2; 
-	//myfile1.open(log_file1.c_str(), ofstream::out | ofstream::app);
-	//myfile2.open(log_file2.c_str(), ofstream::out | ofstream::app);
-	myfile1.open(log_file1.c_str());
-	myfile2.open(log_file2.c_str());
-	
-	myfile1 << " , Opened log_file:," << log_file1 << endl;
-	myfile2 << " , Opened log_file:," << log_file2 << endl;
-
-	log_mypose log_object1(&myfile1, 1);
-	log_mypose log_object2(&myfile2, 2); 
-
-	ros::init(argc, argv, "listener");
-	ros::NodeHandle n1;
-	ros::NodeHandle n2; 
-	ros::Subscriber sub1 = n1.subscribe(chatter_name1, 1000, &log_mypose::poseChatterCb, &log_object1);
-	ros::Subscriber sub2 = n2.subscribe(chatter_name2, 1000, &log_mypose::poseChatterCb, &log_object2);
-	
-	while(ros::ok())
-	{
-		ros::spinOnce();
-	}
-
-
-	myfile1<<endl;
-	myfile2<<endl; 
-
-	myfile1.close(); // Never forget to close file!
-	myfile2.close();
-	return 0; 
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Pose not logged." << endl;
 }
