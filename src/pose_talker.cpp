@@ -68,6 +68,11 @@ int main(int argc, char **argv)
 		pose_msg.pose.pose.position.z = nd3(gen)*(pose_msg.pose.pose.position.z + nd(gen)); // simulates additive noise and scale uncertainty
 		pose_msg.header.stamp.nsec = time_now.nsec + (int)abs(nd2(gen)); // simulates that the data might not be coming at regular intervals
 
+		//pose_msg.header.stamp.nsec = time_now.nsec - 1000; 
+		//pose_msg.header.stamp.sec = time_now.sec - 10; 
+		
+
+
 		chatter_pub2.publish(pose_msg); 
 
 		time_previous = time_now; 

@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   std_msgs
+  tf2_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -123,6 +124,7 @@ include_directories(
 ## Declare a C++ library
 add_library(myloglibrary    ## do not forget to name your library!!!
    src/log_pose.cpp
+   src/analyze_pose.cpp
 )
 
 ## Add cmake target dependencies of the library

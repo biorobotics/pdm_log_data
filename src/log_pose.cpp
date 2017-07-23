@@ -2,12 +2,85 @@
 
 using namespace std;
 
+
+/// Class: LogPoseTransformStamped
+
 /// Constructor
-LogPose::LogPose(ofstream* file_ptr, int id)
+LogPoseTransformStamped::LogPoseTransformStamped(ofstream* file_ptr, int id)
 {
-	// TODO: Control that inputs are given, default constructor?
 	id_ = id; 
-	ofile_ = file_ptr;
+	ofile_ = file_ptr; 
+
+	// TODO: implement proper error management!
+	if(ofile_->is_open())
+	{
+		cout << "[INFO:] File ready (id " << id_ << ")" << endl;
+		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz,";
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Description not created." << endl; 
+}
+
+/// Destructor 
+LogPoseTransformStamped::~LogPoseTransformStamped(void)
+{
+	cout << "[INFO:] Closing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// MEMORY LEAK (delete ofile_ results in seg faults because by calling constructor makes a copy of pointer and I have no idea how to handle pointers)
+	// HELP! 
+	//delete ofile_; 
+}
+
+/// Member Function(s)
+void LogPoseTransformStamped::poseCb(const geometry_msgs::TransformStamped::ConstPtr& msg)
+{
+	if(poseList_.size() < poseList_.max_size())
+	{
+		poseList_.push_back(*msg);
+		//cout << "(" << poseList_.size() << "/" << poseList_.max_size() << ")" << endl; 
+	}
+	else
+		cout << "[Warning:] Pose list (id "<< id_ << ") exceeded its maximum size, no new poses are saved." << endl; 
+	
+	// TODO: implement proper error management!
+	if (ofile_->is_open())
+	{
+		(*ofile_)<<msg->header.seq 				<< ",";
+		(*ofile_)<<msg->header.stamp.sec 		<< ",";
+		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
+
+		(*ofile_)<<msg->transform.translation.x 	<< ",";
+		(*ofile_)<<msg->transform.translation.y 	<< ",";
+		(*ofile_)<<msg->transform.translation.z 	<< ",";
+		(*ofile_)<<msg->transform.rotation.w 		<< ",";
+		(*ofile_)<<msg->transform.rotation.x 		<< ",";
+		(*ofile_)<<msg->transform.rotation.y 		<< ",";
+		(*ofile_)<<msg->transform.rotation.z 		<< ",";
+
+		(*ofile_)<< "\n";
+	}
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Pose not logged." << endl;
+}
+
+poselistTS_type LogPoseTransformStamped::copyPoseList(void)
+{
+	return poseList_;
+}
+
+
+
+
+
+/// Class: LogPosePoseWCovStamped
+
+/// Constructor
+LogPosePoseWCovStamped::LogPosePoseWCovStamped(ofstream* file_ptr, int id)
+{
+	id_ = id; 
+	ofile_ = file_ptr; 
 
 	// TODO: implement proper error management!
 	if(ofile_->is_open())
@@ -28,21 +101,34 @@ LogPose::LogPose(ofstream* file_ptr, int id)
 }
 
 /// Destructor 
-LogPose::~LogPose(void)
+LogPosePoseWCovStamped::~LogPosePoseWCovStamped(void)
 {
 	cout << "[INFO:] Closing file (id " << id_ << ")" << endl;
 	(*ofile_).close();  
+	
+	// MEMORY LEAK (delete ofile_ results in seg faults because by calling constructor makes a copy of pointer and I have no idea how to handle pointers)
+	// HELP! 
+	//delete ofile_; 
 }
 
 /// Member Function(s)
-void LogPose::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void LogPosePoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
+	if(poseList_.size() < poseList_.max_size())
+	{
+		poseList_.push_back(*msg);
+		//cout << "(" << poseList_.size() << "/" << poseList_.max_size() << ")" << endl; 
+	}
+	else
+		cout << "[Warning:] Pose list (id "<< id_ << ") exceeded its maximum size, no new poses are saved." << endl; 
+	
 	// TODO: implement proper error management!
 	if (ofile_->is_open())
 	{
 		(*ofile_)<<msg->header.seq 				<< ",";
 		(*ofile_)<<msg->header.stamp.sec 		<< ",";
 		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
+
 		(*ofile_)<<msg->pose.pose.position.x 	<< ",";
 		(*ofile_)<<msg->pose.pose.position.y 	<< ",";
 		(*ofile_)<<msg->pose.pose.position.z 	<< ",";
@@ -50,6 +136,7 @@ void LogPose::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 		(*ofile_)<<msg->pose.pose.orientation.x << ",";
 		(*ofile_)<<msg->pose.pose.orientation.y << ",";
 		(*ofile_)<<msg->pose.pose.orientation.z << ",";
+
 		for(int i = 0; i < 36; i++)
 		{
 			(*ofile_)<<msg->pose.covariance[i] << ",";	
@@ -58,4 +145,90 @@ void LogPose::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 	}
 	else 
 		cout << "[Warning:] File (id " << id_ << ") not open. Pose not logged." << endl;
+}
+
+poselistPWCS_type LogPosePoseWCovStamped::copyPoseList(void)
+{
+	return poseList_;
+}
+
+
+
+
+
+// Class: LogPoseTf
+
+/// Constructor
+LogPoseTf::LogPoseTf(ofstream* file_ptr, int id, string child_id_name, string id_name)
+{
+	child_frame_id_name_ = child_id_name; 
+	frame_id_name_ = id_name; 
+	id_ = id; 
+	ofile_ = file_ptr; 
+
+
+	// TODO: implement proper error management!
+	if(ofile_->is_open())
+	{
+		cout << "[INFO:] File ready (id " << id_ << ")" << endl;
+
+		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz,";
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Description not created." << endl; 
+}
+
+/// Destructor 
+LogPoseTf::~LogPoseTf(void)
+{
+	cout << "[INFO:] Closing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// MEMORY LEAK (delete ofile_ results in seg faults because by calling constructor makes a copy of pointer and I have no idea how to handle pointers)
+	// HELP! 
+	//delete ofile_; 
+}
+
+/// Member Function(s)
+void LogPoseTf::poseCb(const tf2_msgs::TFMessage::ConstPtr& msg)
+{
+	if(poseList_.size() < poseList_.max_size())
+	{
+		poseList_.push_back(*msg);
+		//cout << "(" << poseList_.size() << "/" << poseList_.max_size() << ")" << endl; 
+	}
+	else
+		cout << "[Warning:] Pose list (id "<< id_ << ") exceeded its maximum size, no new poses are saved." << endl; 
+	
+	// TODO: implement proper error management!
+	if (ofile_->is_open())
+		for(int i=0; i < msg->transforms.size(); i++)
+		{
+			if((child_frame_id_name_.compare(msg->transforms[i].child_frame_id) == 0) && 
+				frame_id_name_.compare(msg->transforms[i].header.frame_id) == 0)
+			{
+				(*ofile_)<<msg->transforms[i].header.seq 				<< ",";
+				(*ofile_)<<msg->transforms[i].header.stamp.sec 		<< ",";
+				(*ofile_)<<msg->transforms[i].header.stamp.nsec 		<< ",";
+
+				(*ofile_)<<msg->transforms[i].transform.translation.x 	<< ",";	
+				(*ofile_)<<msg->transforms[i].transform.translation.y 	<< ",";
+				(*ofile_)<<msg->transforms[i].transform.translation.z 	<< ",";
+				(*ofile_)<<msg->transforms[i].transform.rotation.w 		<< ",";
+				(*ofile_)<<msg->transforms[i].transform.rotation.x 		<< ",";
+				(*ofile_)<<msg->transforms[i].transform.rotation.y 		<< ",";
+				(*ofile_)<<msg->transforms[i].transform.rotation.z 		<< ",";
+
+				(*ofile_)<< "\n";
+			}
+		}
+	else 
+		cout << "[Warning:] File (id " << id_ << ") not open. Pose not logged." << endl;
+}
+	
+
+poselistTf_type LogPoseTf::copyPoseList(void)
+{
+	return poseList_;
 }
