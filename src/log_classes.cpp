@@ -293,6 +293,7 @@ LogJointState::~LogJointState(void)
 }
 
 /// Member Function(s)
+
 void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
 {
 	if (ofile_->is_open())
@@ -311,16 +312,65 @@ void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
 		}
 		for (int i = 0; i < nb_joints_; i++)
 		{
-			(*ofile_)<< setprecision(12) << msg->effort[i]	<< ","; 
+			(*ofile_)<< setprecision(12) << msg->effort[i]		<< ","; 
 		}
 		for (int i = 0; i < nb_joints_; i++)
 		{
-			(*ofile_)<<msg->name[i]				<< ","; 
+			(*ofile_)<<msg->name[i]								<< ","; 
 		}
 
 		(*ofile_)<< "\n";
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. JointState not logged." << endl;
+		// TODO: implement proper error management!
+}
+
+
+
+/// Class 6		std/Header
+// -----------------------------------------------------------------------------------------------
+/// Constructor
+LogSimTime::LogSimTime(ofstream* file_ptr, int id)
+{
+	id_ = id; 
+	ofile_ = file_ptr; 
+
+	if(ofile_->is_open())
+	{
+		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
+
+		(*ofile_)<< " , sec, nsec,"; 
+		
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
+		// TODO: implement proper error management!
+}
+
+/// Destructor 
+LogSimTime::~LogSimTime(void)
+{
+	cout << "{INFO} \tClosing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// TODO: delete ofile?
+}
+
+/// Member Function(s)
+void LogSimTime::simTimeCb(const std_msgs::Header::ConstPtr& msg)
+{
+	
+	if (ofile_->is_open())
+	{
+		(*ofile_)<<msg->seq 			<< ",";
+		(*ofile_)<<msg->stamp.sec 		<< ",";
+		(*ofile_)<<msg->stamp.nsec 		<< ",";
+
+		(*ofile_)<< "\n";
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. SimTime not logged." << endl;
 		// TODO: implement proper error management!
 }

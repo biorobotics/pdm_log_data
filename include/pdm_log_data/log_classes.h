@@ -13,7 +13,9 @@
 
 using namespace std;
 
-/// Class 1		geometry_msgs/TransformStamped
+/// Class 1			geometry_msgs/TransformStamped
+/// Topic name(s):	/vicon/Goat2/Goat2
+///					/pose_chatterX (testing)					
 class LogPoseTransformStamped {
 public: 
 	int id_;
@@ -25,7 +27,8 @@ public:
 	~LogPoseTransformStamped();
 };
 
-/// Class 2		geometry_msgs/PoseWithCovarianceStamped
+/// Class 2			geometry_msgs/PoseWithCovarianceStamped
+/// Topic name:		/svo/pose
 class LogPoseWCovStamped {
 public: 
 	int id_;
@@ -37,20 +40,9 @@ public:
 	~LogPoseWCovStamped();
 };
 
-/// Class 3		tf2_msgs/TFMessage
-class LogPoseTf {// Class 4		sensor_msgs/Imu
-class LogImu {
-public: 
-	int id_;
-	ofstream* ofile_; 
-	
-	/// Callback function in ros to read msg from a topic 
-	void imuCb(const sensor_msgs::Imu::ConstPtr& msg);
-
-	LogImu(ofstream* file_ptr, int id);
-	~LogImu();
-};
-
+/// Class 3			tf2_msgs/TFMessage
+/// Topic name: 	/tf
+class LogPoseTf {
 public: 
 	int id_;
 	ofstream* ofile_; 
@@ -65,7 +57,8 @@ public:
 	~LogPoseTf();
 };
 
-/// Class 4		sensor_msgs/Imu
+/// Class 4			sensor_msgs/Imu
+/// Topic name:		/imu
 class LogImu {
 public: 
 	int id_;
@@ -78,7 +71,8 @@ public:
 	~LogImu();
 };
 
-/// Class 5		sensor_msgs/JointSpace
+/// Class 5			sensor_msgs/JointSpace
+/// Topic name: 	/jointState
 class LogJointState {
 public: 
 	int id_;
@@ -91,6 +85,22 @@ public:
 	LogJointState(ofstream* file_ptr, int id, int nb_joints);
 	~LogJointState();
 };
+
+
+/// Class 6			std_msgs/Header
+/// Topic name: 	/time
+class LogSimTime {
+public: 
+	int id_;
+	ofstream* ofile_; 
+	
+	/// Callback function in ros to read msg from a topic 
+	void simTimeCb(const std_msgs::Header::ConstPtr& msg);
+
+	LogSimTime(ofstream* file_ptr, int id);
+	~LogSimTime();
+};
+
 
 
 #endif // LOG_CLASSES_H_
