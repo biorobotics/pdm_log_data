@@ -6,6 +6,7 @@
 #include <tf2_msgs/TFMessage.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Float32MultiArray.h>
 
 #include <fstream>
 #include <iostream>
@@ -99,6 +100,26 @@ public:
 
 	LogSimTime(ofstream* file_ptr, int id);
 	~LogSimTime();
+};
+
+
+/// Class 7			std_msgs/Float32MultiArray
+/// Topic name(s): 	/params (specified through custom name)
+///					/pose 
+
+class LogCustom {
+public: 
+	int id_;
+	ofstream* ofile_; 
+	int nb_elements_; 
+	string custom_name_; 
+	bool reverse_order_; 
+	
+	/// Callback function in ros to read msg from a topic 
+	void customCb(const std_msgs::Float32MultiArray::ConstPtr& msg);
+
+	LogCustom(ofstream* file_ptr, int id, int nb_elements, string custom_name, bool reverse_order);
+	~LogCustom();
 };
 
 

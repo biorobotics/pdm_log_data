@@ -328,7 +328,7 @@ void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
 
 
 
-/// Class 6		std/Header
+/// Class 6		std_msgs/Header
 // -----------------------------------------------------------------------------------------------
 /// Constructor
 LogSimTime::LogSimTime(ofstream* file_ptr, int id)
@@ -372,5 +372,78 @@ void LogSimTime::simTimeCb(const std_msgs::Header::ConstPtr& msg)
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. SimTime not logged." << endl;
+		// TODO: implement proper error management!
+}
+
+
+/// Class 7		std_msgs/Float32MultiArray
+// -----------------------------------------------------------------------------------------------
+/// Constructor
+LogCustom::LogCustom(ofstream* file_ptr, int id, int nb_elements, string custom_name, bool reverse_order)
+{
+	id_ = id; 
+	ofile_ = file_ptr; 
+	nb_elements_ = nb_elements; 
+	custom_name_ = custom_name; 
+	reverse_order_ = reverse_order; 
+
+	if(ofile_->is_open())
+	{
+		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
+
+		if(nb_elements_ == 6 && custom_name_.compare("params") == 0)
+		{
+			(*ofile_)<< "state [1:air 2:ground], kpRadialVirtual [N/inch], inAirRadius [inch], thrust [N], kpJump [N/inch], atBottomRadius [inch], ";	
+		}
+
+		else if (nb_elements_ == 13 && custom_name_.compare("pose") == 0)
+		{
+			(*ofile_)<< " r [inch], theta [rad], phi [rad], pose.x [inch], pose.y [inch], pose.z [inch], q.x, q.y, q.z, q.w, roll [deg], pitch [deg], yaw [deg], "; 
+		}
+
+		else 
+		{
+			for(int i = 0; i < nb_elements_; i++)
+			{
+				(*ofile_)<< i << ", "; 
+			}
+		}	
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
+		// TODO: implement proper error management!
+}
+
+/// Destructor 
+LogCustom::~LogCustom(void)
+{
+	cout << "{INFO} \tClosing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// TODO: delete ofile?
+}
+
+/// Member Function(s)
+void LogCustom::customCb(const std_msgs::Float32MultiArray::ConstPtr& msg)
+{
+	
+	if (ofile_->is_open())
+	{
+		for (int i = 0; i < nb_elements_; i++)
+		{
+			if(reverse_order_ == false)
+			{
+				(*ofile_)<< setprecision(12) << msg->data[i] << ",";	
+			}
+			else
+			{
+				(*ofile_)<< setprecision(12) << msg->data[nb_elements_ - i - 1] << ",";
+			}
+		}
+		(*ofile_)<< "\n";
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Custom message not logged." << endl;
 		// TODO: implement proper error management!
 }
