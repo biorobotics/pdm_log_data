@@ -1,11 +1,10 @@
-#include <pdm_log_data/log_pose.h>
+#include <pdm_log_data/log_classes.h>
 
 using namespace std;
 
 
-/// Class: LogPoseTransformStamped 
+/// Class 1		geometry_msgs/TransformStamped
 // -----------------------------------------------------------------------------------------------
-
 /// Constructor
 LogPoseTransformStamped::LogPoseTransformStamped(ofstream* file_ptr, int id)
 {
@@ -46,7 +45,8 @@ void LogPoseTransformStamped::poseCb(const geometry_msgs::TransformStamped::Cons
 		(*ofile_)<<msg->transform.translation.y 	<< ",";
 		(*ofile_)<<msg->transform.translation.z 	<< ",";
 		(*ofile_)<<msg->transform.rotation.w 		<< ",";
-		(*ofile_)<<msg->transform.rotation.x 		<< ",";
+	
+	(*ofile_)<<msg->transform.rotation.x 		<< ",";
 		(*ofile_)<<msg->transform.rotation.y 		<< ",";
 		(*ofile_)<<msg->transform.rotation.z 		<< ",";
 
@@ -59,11 +59,10 @@ void LogPoseTransformStamped::poseCb(const geometry_msgs::TransformStamped::Cons
 
 
 
-/// Class: LogPosePoseWCovStamped
+/// Class 2		geometry_msgs/PoseWithCovarianceStamped
 // -----------------------------------------------------------------------------------------------
-
 /// Constructor
-LogPosePoseWCovStamped::LogPosePoseWCovStamped(ofstream* file_ptr, int id)
+LogPoseWCovStamped::LogPoseWCovStamped(ofstream* file_ptr, int id)
 {
 	id_ = id; 
 	ofile_ = file_ptr; 
@@ -88,7 +87,7 @@ LogPosePoseWCovStamped::LogPosePoseWCovStamped(ofstream* file_ptr, int id)
 }
 
 /// Destructor 
-LogPosePoseWCovStamped::~LogPosePoseWCovStamped(void)
+LogPoseWCovStamped::~LogPoseWCovStamped(void)
 {
 	cout << "{INFO} \tClosing file (id " << id_ << ")" << endl;
 	(*ofile_).close();  
@@ -96,7 +95,7 @@ LogPosePoseWCovStamped::~LogPosePoseWCovStamped(void)
 }
 
 /// Member Function(s)
-void LogPosePoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void LogPoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
 	if (ofile_->is_open())
 	{
@@ -123,9 +122,10 @@ void LogPosePoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamp
 		// TODO: implement proper error management!
 }
 
-/// Class: LogPoseTf
-// -----------------------------------------------------------------------------------------------
 
+
+/// Class 3		tf2_msgs/TFMessage
+// -----------------------------------------------------------------------------------------------
 /// Constructor
 LogPoseTf::LogPoseTf(ofstream* file_ptr, int id, string child_id_name, string id_name)
 {
@@ -181,5 +181,63 @@ void LogPoseTf::poseCb(const tf2_msgs::TFMessage::ConstPtr& msg)
 		}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Pose not logged." << endl;
+		// TODO: implement proper error management!
+}
+
+
+
+/// Class 4		sensor_msgs/Imu
+// -----------------------------------------------------------------------------------------------
+/// Constructor
+LogImu::LogImu(ofstream* file_ptr, int id)
+{
+	id_ = id; 
+	ofile_ = file_ptr; 
+
+	if(ofile_->is_open())
+	{
+		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
+
+		(*ofile_)<< " , sec, nsec, linacc_x, linacc_y, linacc_z, qw, qx, qy, qz,"; 
+		
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
+		// TODO: implement proper error management!
+}
+
+/// Destructor 
+LogImu::~LogImu(void)
+{
+	cout << "{INFO} \tClosing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// TODO: delete ofile?
+}
+
+/// Member Function(s)
+void LogImu::imuCb(const sensor_msgs::Imu::ConstPtr& msg)
+{
+	
+	if (ofile_->is_open())
+	{
+		(*ofile_)<<msg->header.seq 				<< ",";
+		(*ofile_)<<msg->header.stamp.sec 		<< ",";
+		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
+
+		(*ofile_)<<msg->linear_acceleration.x 	<< ",";
+		(*ofile_)<<msg->linear_acceleration.y	<< ",";
+		(*ofile_)<<msg->linear_acceleration.z	<< ",";
+
+		(*ofile_)<<msg->orientation.w 			<< ",";
+		(*ofile_)<<msg->orientation.x 			<< ",";
+		(*ofile_)<<msg->orientation.y 			<< ",";
+		(*ofile_)<<msg->orientation.z 			<< ",";
+
+		(*ofile_)<< "\n";
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Imu not logged." << endl;
 		// TODO: implement proper error management!
 }

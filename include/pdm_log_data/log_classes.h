@@ -1,16 +1,18 @@
-#ifndef LOG_POSE_H_
-#define LOG_POSE_H_
+#ifndef LOG_CLASSES_H_
+#define LOG_CLASSES_H_
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
+#include <sensor_msgs/Imu.h>
+
 #include <fstream>
 #include <iostream>
 #include <list>
 
 using namespace std;
 
-/// Class 1
+/// Class 1		geometry_msgs/TransformStamped
 class LogPoseTransformStamped {
 public: 
 	int id_;
@@ -22,19 +24,19 @@ public:
 	~LogPoseTransformStamped();
 };
 
-/// Class 2
-class LogPosePoseWCovStamped {
+/// Class 2		geometry_msgs/PoseWithCovarianceStamped
+class LogPoseWCovStamped {
 public: 
 	int id_;
 	ofstream* ofile_; 
 	
 	void poseCb(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
 
-	LogPosePoseWCovStamped(ofstream* file_ptr, int id);
-	~LogPosePoseWCovStamped();
+	LogPoseWCovStamped(ofstream* file_ptr, int id);
+	~LogPoseWCovStamped();
 };
 
-/// Class 3
+/// Class 3		tf2_msgs/TFMessage
 class LogPoseTf {
 public: 
 	int id_;
@@ -50,19 +52,18 @@ public:
 	~LogPoseTf();
 };
 
-/// Class 4
-/*
+/// Class 4		sensor_msgs/Imu
 class LogImu {
 public: 
-	int id_; 
+	int id_;
 	ofstream* ofile_; 
+	
+	/// Callback function in ros to read msg from a topic 
+	void imuCb(const sensor_msgs::Imu::ConstPtr& msg);
 
-	/// Callback function in ros to read msg from a topic
-	voic imuCb(const )
-
+	LogImu(ofstream* file_ptr, int id);
+	~LogImu();
 };
 
-*/
 
-
-#endif // LOG_POSE_H_
+#endif // LOG_CLASSES_H_

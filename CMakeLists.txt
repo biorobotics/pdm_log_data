@@ -123,7 +123,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(myloglibrary    ## do not forget to name your library!!!
-   src/log_pose.cpp
+   src/log_classes.cpp
 )
 
 ## Add cmake target dependencies of the library
