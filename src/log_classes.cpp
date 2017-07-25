@@ -241,3 +241,86 @@ void LogImu::imuCb(const sensor_msgs::Imu::ConstPtr& msg)
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Imu not logged." << endl;
 		// TODO: implement proper error management!
 }
+
+
+
+/// Class 5		sensor_msgs/JointState
+// -----------------------------------------------------------------------------------------------
+/// Constructor
+LogJointState::LogJointState(ofstream* file_ptr, int id, int nb_joints)
+{
+	id_ = id; 
+	ofile_ = file_ptr; 
+	nb_joints_ = nb_joints;
+
+	if(ofile_->is_open())
+	{
+		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
+
+		(*ofile_)<< " , sec, nsec, "; 
+
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< i << " position, "; 
+		}	
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< i << " velocity, ";
+		}
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< i << " effort, ";
+		}
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< i << " name, ";
+		}				
+
+		(*ofile_)<< endl;		 
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
+		// TODO: implement proper error management!
+}
+
+/// Destructor 
+LogJointState::~LogJointState(void)
+{
+	cout << "{INFO} \tClosing file (id " << id_ << ")" << endl;
+	(*ofile_).close();  
+	
+	// TODO: delete ofile?
+}
+
+/// Member Function(s)
+void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
+{
+	if (ofile_->is_open())
+	{
+		(*ofile_)<<msg->header.seq 				<< ",";
+		(*ofile_)<<msg->header.stamp.sec 		<< ",";
+		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
+
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< setprecision(12) << msg->position[i]	<< ","; 
+		}
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< setprecision(12) << msg->velocity[i]	<< ","; 
+		}
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<< setprecision(12) << msg->effort[i]	<< ","; 
+		}
+		for (int i = 0; i < nb_joints_; i++)
+		{
+			(*ofile_)<<msg->name[i]				<< ","; 
+		}
+
+		(*ofile_)<< "\n";
+	}
+	else 
+		cout << "{Warning} \tFile (id " << id_ << ") not open. JointState not logged." << endl;
+		// TODO: implement proper error management!
+}

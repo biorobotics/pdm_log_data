@@ -5,6 +5,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/JointState.h>
 
 #include <fstream>
 #include <iostream>
@@ -37,7 +38,19 @@ public:
 };
 
 /// Class 3		tf2_msgs/TFMessage
-class LogPoseTf {
+class LogPoseTf {// Class 4		sensor_msgs/Imu
+class LogImu {
+public: 
+	int id_;
+	ofstream* ofile_; 
+	
+	/// Callback function in ros to read msg from a topic 
+	void imuCb(const sensor_msgs::Imu::ConstPtr& msg);
+
+	LogImu(ofstream* file_ptr, int id);
+	~LogImu();
+};
+
 public: 
 	int id_;
 	ofstream* ofile_; 
@@ -63,6 +76,20 @@ public:
 
 	LogImu(ofstream* file_ptr, int id);
 	~LogImu();
+};
+
+/// Class 5		sensor_msgs/JointSpace
+class LogJointState {
+public: 
+	int id_;
+	ofstream* ofile_; 
+	int nb_joints_; 
+	
+	/// Callback function in ros to read msg from a topic 
+	void jointStateCb(const sensor_msgs::JointState::ConstPtr& msg);
+
+	LogJointState(ofstream* file_ptr, int id, int nb_joints);
+	~LogJointState();
 };
 
 
