@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	string log_file4("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/imu.csv"); 
 	string log_file5("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/jointState.csv"); 
 	string log_file6("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/simTime.csv"); 
-	string log_file7("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/effPose.csv"); 
+	string log_file7("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/goatPose.csv"); 
 	string log_file8("/media/pea/Windows7_OS/Users/Astrid/Desktop/dataset2/data_extraction/goatParam.csv"); 
 	 
 	/// Specify the name of the node you want to save the pose from!
