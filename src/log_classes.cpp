@@ -15,8 +15,8 @@ LogPoseTransformStamped::LogPoseTransformStamped(ofstream* file_ptr, int id)
 	if(ofile_->is_open())
 	{
 		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
-		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz,";
-		(*ofile_)<< endl;		 
+		(*ofile_)<< " , sec, nsec, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z,";
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;			 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -37,6 +37,7 @@ void LogPoseTransformStamped::poseCb(const geometry_msgs::TransformStamped::Cons
 {
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		(*ofile_)<<msg->header.seq 					<< ",";
 		(*ofile_)<<msg->header.stamp.sec 			<< ",";
 		(*ofile_)<<msg->header.stamp.nsec 			<< ",";
@@ -46,11 +47,11 @@ void LogPoseTransformStamped::poseCb(const geometry_msgs::TransformStamped::Cons
 		(*ofile_)<<msg->transform.translation.z 	<< ",";
 		(*ofile_)<<msg->transform.rotation.w 		<< ",";
 	
-	(*ofile_)<<msg->transform.rotation.x 		<< ",";
+		(*ofile_)<<msg->transform.rotation.x 		<< ",";
 		(*ofile_)<<msg->transform.rotation.y 		<< ",";
 		(*ofile_)<<msg->transform.rotation.z 		<< ",";
 
-		(*ofile_)<< "\n";
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \nFile (id " << id_ << ") not open. Pose not logged." << endl;
@@ -79,7 +80,8 @@ LogPoseWCovStamped::LogPoseWCovStamped(ofstream* file_ptr, int id)
 		(*ofile_)<< "Cov41, Cov42, Cov43, Cov44, Cov45, Cov46,";
 		(*ofile_)<< "Cov51, Cov52, Cov53, Cov54, Cov55, Cov56,";
 		(*ofile_)<< "Cov61, Cov62, Cov63, Cov64, Cov65, Cov66,";
-		(*ofile_)<< endl;		 
+
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;			 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -99,6 +101,7 @@ void LogPoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamped::
 {
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		(*ofile_)<<msg->header.seq 				<< ",";
 		(*ofile_)<<msg->header.stamp.sec 		<< ",";
 		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
@@ -115,7 +118,8 @@ void LogPoseWCovStamped::poseCb(const geometry_msgs::PoseWithCovarianceStamped::
 		{
 			(*ofile_)<<msg->pose.covariance[i] << ",";	
 		}
-		(*ofile_)<< "\n";
+
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Pose not logged." << endl;
@@ -138,8 +142,8 @@ LogPoseTf::LogPoseTf(ofstream* file_ptr, int id, string child_id_name, string id
 	{
 		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
 
-		(*ofile_)<< " , sec, nsec, pos_x, pos_y, pos_z, qw, qx, qy, qz,";
-		(*ofile_)<< endl;		 
+		(*ofile_)<< " , sec, nsec, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z,";
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;			 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -159,6 +163,8 @@ LogPoseTf::~LogPoseTf(void)
 void LogPoseTf::poseCb(const tf2_msgs::TFMessage::ConstPtr& msg)
 {
 	if (ofile_->is_open())
+	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		for(int i=0; i < msg->transforms.size(); i++)
 		{
 			if((child_frame_id_name_.compare(msg->transforms[i].child_frame_id) == 0) && 
@@ -176,9 +182,10 @@ void LogPoseTf::poseCb(const tf2_msgs::TFMessage::ConstPtr& msg)
 				(*ofile_)<<msg->transforms[i].transform.rotation.y 		<< ",";
 				(*ofile_)<<msg->transforms[i].transform.rotation.z 		<< ",";
 
-				(*ofile_)<< "\n";
+				(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 			}
 		}
+	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Pose not logged." << endl;
 		// TODO: implement proper error management!
@@ -200,7 +207,7 @@ LogImu::LogImu(ofstream* file_ptr, int id)
 
 		(*ofile_)<< " , sec, nsec, linacc_x, linacc_y, linacc_z, qw, qx, qy, qz,"; 
 		
-		(*ofile_)<< endl;		 
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;			 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -222,6 +229,7 @@ void LogImu::imuCb(const sensor_msgs::Imu::ConstPtr& msg)
 	
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		(*ofile_)<<msg->header.seq 				<< ",";
 		(*ofile_)<<msg->header.stamp.sec 		<< ",";
 		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
@@ -235,7 +243,7 @@ void LogImu::imuCb(const sensor_msgs::Imu::ConstPtr& msg)
 		(*ofile_)<<msg->orientation.y 			<< ",";
 		(*ofile_)<<msg->orientation.z 			<< ",";
 
-		(*ofile_)<< "\n";
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Imu not logged." << endl;
@@ -276,7 +284,7 @@ LogJointState::LogJointState(ofstream* file_ptr, int id, int nb_joints)
 			(*ofile_)<< i << " name, ";
 		}				
 
-		(*ofile_)<< endl;		 
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;			 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -298,6 +306,7 @@ void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
 {
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		(*ofile_)<<msg->header.seq 				<< ",";
 		(*ofile_)<<msg->header.stamp.sec 		<< ",";
 		(*ofile_)<<msg->header.stamp.nsec 		<< ",";
@@ -319,7 +328,7 @@ void LogJointState::jointStateCb(const sensor_msgs::JointState::ConstPtr& msg)
 			(*ofile_)<<msg->name[i]								<< ","; 
 		}
 
-		(*ofile_)<< "\n";
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. JointState not logged." << endl;
@@ -342,7 +351,7 @@ LogSimTime::LogSimTime(ofstream* file_ptr, int id)
 
 		(*ofile_)<< " , sec, nsec,"; 
 		
-		(*ofile_)<< endl;		 
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;		 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -364,11 +373,12 @@ void LogSimTime::simTimeCb(const std_msgs::Header::ConstPtr& msg)
 	
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		(*ofile_)<<msg->seq 			<< ",";
 		(*ofile_)<<msg->stamp.sec 		<< ",";
 		(*ofile_)<<msg->stamp.nsec 		<< ",";
 
-		(*ofile_)<< "\n";
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. SimTime not logged." << endl;
@@ -398,17 +408,22 @@ LogCustom::LogCustom(ofstream* file_ptr, int id, int nb_elements, string custom_
 
 		else if (nb_elements_ == 13 && custom_name_.compare("pose") == 0)
 		{
-			(*ofile_)<< " r [inch], theta [rad], phi [rad], pose.x [inch], pose.y [inch], pose.z [inch], q.x, q.y, q.z, q.w, roll [deg], pitch [deg], yaw [deg], "; 
+			(*ofile_)<< "r [inch], theta [rad], phi [rad], pose.x [inch], pose.y [inch], pose.z [inch], q.x, q.y, q.z, q.w, roll [deg], pitch [deg], yaw [deg], "; 
 		}
 
-		else 
+		else if (nb_elements_ == 16 && custom_name_.compare(0, 6, "kfinfo") == 0)
+		{
+			(*ofile_)<< "z_seq, z_sec, z_nsec, x(0), x(1), P(0 0), P(0 1), P(1 0), P(1 1), K(0), K(1), y_pre, y_post, z_dt, lag_dt, processing_dt, "; 
+		} 
+		else	
 		{
 			for(int i = 0; i < nb_elements_; i++)
 			{
-				(*ofile_)<< i << ", "; 
+				(*ofile_)<< i << " - , "; 
 			}
-		}	
-		(*ofile_)<< endl;		 
+		}
+
+		(*ofile_)<< "time_logmsg_in.sec, time_logmsg_in.nsec" << endl;		 
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Description not created." << endl; 
@@ -430,6 +445,7 @@ void LogCustom::customCb(const std_msgs::Float32MultiArray::ConstPtr& msg)
 	
 	if (ofile_->is_open())
 	{
+		ros::Time timestamp_in = ros::Time::now(); 
 		for (int i = 0; i < nb_elements_; i++)
 		{
 			if(reverse_order_ == false)
@@ -441,7 +457,7 @@ void LogCustom::customCb(const std_msgs::Float32MultiArray::ConstPtr& msg)
 				(*ofile_)<< setprecision(12) << msg->data[nb_elements_ - i - 1] << ",";
 			}
 		}
-		(*ofile_)<< "\n";
+		(*ofile_) << timestamp_in.sec << "," << timestamp_in.nsec << endl;
 	}
 	else 
 		cout << "{Warning} \tFile (id " << id_ << ") not open. Custom message not logged." << endl;
