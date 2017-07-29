@@ -11,7 +11,6 @@ LogPoseTransformStamped::LogPoseTransformStamped(ofstream* file_ptr, int id)
 	id_ = id; 
 	ofile_ = file_ptr; 
 
-
 	if(ofile_->is_open())
 	{
 		cout << "{INFO} \tFile ready (id " << id_ << ")" << endl;
@@ -269,15 +268,15 @@ LogJointState::LogJointState(ofstream* file_ptr, int id, int nb_joints)
 
 		for (int i = 0; i < nb_joints_; i++)
 		{
-			(*ofile_)<< i << " position, "; 
+			(*ofile_)<< i << " position [deg], "; 
 		}	
 		for (int i = 0; i < nb_joints_; i++)
 		{
-			(*ofile_)<< i << " velocity, ";
+			(*ofile_)<< i << " velocity [krpm], ";
 		}
 		for (int i = 0; i < nb_joints_; i++)
 		{
-			(*ofile_)<< i << " effort, ";
+			(*ofile_)<< i << " effort [Nm], ";
 		}
 		for (int i = 0; i < nb_joints_; i++)
 		{
@@ -419,7 +418,7 @@ LogCustom::LogCustom(ofstream* file_ptr, int id, int nb_elements, string custom_
 		{
 			for(int i = 0; i < nb_elements_; i++)
 			{
-				(*ofile_)<< i << " - , "; 
+				(*ofile_)<< "[" << i << "], "; 
 			}
 		}
 
